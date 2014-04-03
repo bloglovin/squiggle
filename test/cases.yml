@@ -67,6 +67,28 @@
         ORDER BY stories.id DESC
       args:
         - 5
+- name: Array expansion
+  query: >
+    SELECT fields FROM table
+    WHERE id IN (?ids)
+  tests:
+    - parameters:
+        ids: 12
+      sql: >
+        SELECT fields FROM table
+        WHERE id IN (?)
+      args:
+        - 12
+    - parameters:
+        ids:
+          - 12
+          - 24
+      sql: >
+        SELECT fields FROM table
+        WHERE id IN (?, ?)
+      args:
+        - 12
+        - 24
 - name: Named subexpression activation
   query: >
     SELECT fields FROM collection_stories AS stories

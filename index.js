@@ -100,20 +100,28 @@ Query.prototype.build = function build(sql, start) {
   return query;
 };
 
-Query.prototype.id = function(params, values, groups) {
+Query.prototype.id = function (spec) {
+  var params = spec.params || {};
+  var values = spec.values || {};
+  var groups = spec.groups || {};
+
+  return this._id(params, values, groups);
+};
+
+Query.prototype._id = function(params, values, groups) {
   return this.name +
     ':' + lib.querystring.stringify(params) +
     ':' + lib.querystring.stringify(values) +
     ':' + lib.querystring.stringify(groups);
 };
 
-Query.prototype.query = function (params, values, groups) {
-  params = params || {};
-  values = values || {};
-  groups = groups || {};
+Query.prototype.query = function (spec) {
+  var params = spec.params || {};
+  var values = spec.values || {};
+  var groups = spec.groups || {};
 
   var q = this._query(this.queryObject, params, values, groups, false);
-  q.id = this.id(params, values, groups);
+  q.id = this._id(params, values, groups);
   return q;
 };
 
@@ -144,6 +152,10 @@ Query.prototype._query = function (definition, params, values, groups, child) {
     }
   }
 
+  function questionMark() {
+    return '?';
+  }
+
   var q = {
     sql: "",
     params: []
@@ -155,8 +167,14 @@ Query.prototype._query = function (definition, params, values, groups, child) {
       q.sql += item;
     }
     else if (item.param) {
-      q.sql += '?';
-      q.params.push(params[item.param]);
+      if (Array.isArray(params[item.param])) {
+        q.sql += params[item.param].map(questionMark).join(', ');
+        q.params = q.params.concat(params[item.param]);
+      }
+      else {
+        q.sql += '?';
+        q.params.push(params[item.param]);
+      }
     }
     else if (item.value) {
       q.sql += values[item.value];

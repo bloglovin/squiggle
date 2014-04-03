@@ -22,10 +22,24 @@ var q = new lib.squiggle.Query('test',
   "?(:named AND arbitrary=42 )" +
   "LIMIT $offset, $limit");
 
-console.log(q.query({id:12}, {offset:0, limit:20}));
-console.log(q.query({id:12}, {offset:0, limit:20}, {named:true}));
-console.log(q.query({id:12, public:true}, {offset:0, limit:10}));
-console.log(q.query({id:12, public:true}, {offset:0, limit:10}, {extra:true}));
+console.log(q.query({
+  params: {id:12},
+  values: {offset:0, limit:20}
+}));
+console.log(q.query({
+  params: {id:12},
+  values: {offset:0, limit:20},
+  groups: {named:true}
+}));
+console.log(q.query({
+  params: {id:12, public:true},
+  values: {offset:0, limit:10}
+}));
+console.log(q.query({
+  params: {id:12, public:true},
+  values: {offset:0, limit:10},
+  groups: {extra:true}
+}));
 ```
 
 Yields:
