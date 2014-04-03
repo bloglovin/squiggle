@@ -1,0 +1,124 @@
+- name: Simple subexpressions
+  query: >
+    SELECT fields FROM collection_stories AS stories
+    WHERE stories.added_by = ?user ?(AND stories.id < ?before) ?(AND stories.public = ?public)
+    ORDER BY stories.id DESC
+    LIMIT $limit
+  tests:
+    - name: Omitting all optional parameters
+      parameters:
+        user: 1
+      values:
+        limit: 10
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.added_by = ?   ORDER BY stories.id DESC
+        LIMIT 10
+      args:
+        - 1
+    - name: Omitting some optional parameters
+      parameters:
+        user: 2
+        public: 1
+      values:
+        limit: 20
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.added_by = ?  AND stories.public = ?
+        ORDER BY stories.id DESC
+        LIMIT 20
+      args:
+        - 2
+        - 1
+    - parameters:
+        user: 2
+        before: 4
+        public: 1
+      values:
+        limit: 20
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.added_by = ? AND stories.id < ? AND stories.public = ?
+        ORDER BY stories.id DESC
+        LIMIT 20
+      args:
+        - 2
+        - 4
+        - 1
+    - parameters:
+        user: 5
+      error: Missing value "limit"
+    - values:
+        limit: 10
+      error: Missing parameter "user"
+- name: Nested parentheses
+  query: >
+    SELECT fields FROM collection_stories AS stories
+    ?(:access WHERE (stories.public = 1 OR stories.owner=?user))
+    ORDER BY stories.id DESC
+  tests:
+    - parameters:
+        user: 5
+      groups:
+        access: true
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE (stories.public = 1 OR stories.owner=?)
+        ORDER BY stories.id DESC
+      args:
+        - 5
+- name: Named subexpression activation
+  query: >
+    SELECT fields FROM collection_stories AS stories
+    ?(:public WHERE stories.public = 1)
+    ORDER BY stories.id DESC
+  tests:
+    - groups:
+        public: true
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.public = 1
+        ORDER BY stories.id DESC
+    - sql: >
+        SELECT fields FROM collection_stories AS stories  ORDER BY stories.id DESC
+- name: Named subexpression suppression
+  query: >
+    SELECT fields FROM collection_stories AS stories
+    ?(:author WHERE stories.added_by = ?user)
+    ORDER BY stories.id DESC
+  tests:
+    - parameters:
+        user: 5
+      groups:
+        author: false
+      sql: >
+        SELECT fields FROM collection_stories AS stories  ORDER BY stories.id DESC
+    - parameters:
+        user: 5
+      groups:
+        author: true
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.added_by = ?
+        ORDER BY stories.id DESC
+      args:
+        - 5
+    - parameters:
+        user: 5
+      sql: >
+        SELECT fields FROM collection_stories AS stories
+        WHERE stories.added_by = ?
+        ORDER BY stories.id DESC
+      args:
+        - 5
+- name: Mandatory subexpressions
+  query: >
+    SELECT fields FROM collection_stories AS stories
+    ?(:author WHERE stories.added_by = ?user)
+    ORDER BY stories.id DESC
+  tests:
+    - sql: >
+        SELECT fields FROM collection_stories AS stories  ORDER BY stories.id DESC
+    - groups:
+        author: true
+      error: Missing parameter "user"
