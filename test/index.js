@@ -65,13 +65,6 @@ suite('Consistent ids', function checkIds() {
     assert.equal(id, 'test:field=1:limit=10:name=true');
   });
 
-  test('Id and query.id yeild the same result', function runTest() {
-    var id = squig.id(fullSpec);
-    var query = squig.query(fullSpec);
-
-    assert.equal(query.id, id);
-  });
-
   test('Omitted attributes yeild empty strings', function runTest() {
     var id = squig.id({});
 

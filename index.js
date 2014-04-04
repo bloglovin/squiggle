@@ -105,10 +105,6 @@ Query.prototype.id = function (spec) {
   var values = spec.values || {};
   var groups = spec.groups || {};
 
-  return this._id(params, values, groups);
-};
-
-Query.prototype._id = function(params, values, groups) {
   return this.name +
     ':' + lib.querystring.stringify(params) +
     ':' + lib.querystring.stringify(values) +
@@ -120,9 +116,7 @@ Query.prototype.query = function (spec) {
   var values = spec.values || {};
   var groups = spec.groups || {};
 
-  var q = this._query(this.queryObject, params, values, groups, false);
-  q.id = this._id(params, values, groups);
-  return q;
+  return this._query(this.queryObject, params, values, groups, false);
 };
 
 Query.prototype._query = function (definition, params, values, groups, child) {
