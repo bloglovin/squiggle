@@ -154,6 +154,13 @@ Query.prototype._query = function (definition, params, values, groups, child) {
     return '?';
   }
 
+  function valueCheck(val) {
+    if (typeof val === 'boolean') {
+      val = val ? 1 : 0;
+    }
+    return val;
+  }
+
   var q = {
     sql: "",
     params: []
@@ -171,7 +178,7 @@ Query.prototype._query = function (definition, params, values, groups, child) {
       }
       else {
         q.sql += '?';
-        q.params.push(params[item.param]);
+        q.params.push(valueCheck(params[item.param]));
       }
     }
     else if (item.value) {

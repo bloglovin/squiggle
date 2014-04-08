@@ -51,6 +51,22 @@
     - values:
         limit: 10
       error: Missing parameter "user"
+- name: Boolean parameters get converted to 1 and 0
+  query: >
+    SELECT foo FROM bar
+    WHERE public = ?public
+    AND annoying != ?annoying
+  tests:
+    - parameters:
+        public: true
+        annoying: false
+      sql: >
+        SELECT foo FROM bar
+        WHERE public = ?
+        AND annoying != ?
+      args:
+        - 1
+        - 0
 - name: RT - Allow mixed case and underscores in value names
   query: >
     SELECT foo FROM bar
