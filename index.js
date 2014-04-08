@@ -44,6 +44,24 @@ Query.prototype.build = function build(sql, start) {
     return name;
   }
 
+  function getGroup() {
+    var groupName;
+
+    if (sql[i] == ':') {
+      groupName = getName('Parse failed, expected group name after :.');
+      i+=2;
+    }
+
+    var group = build(sql, i);
+
+    if (groupName) {
+      group.name = groupName;
+    }
+
+    query.query.push(group);
+    i += group.length;
+  }
+
   var name;
   for (i=start; i < sql.length; i++) {
     if (sql[i] == '?') {
@@ -51,21 +69,7 @@ Query.prototype.build = function build(sql, start) {
 
       if (sql[i+1] == '(') {
         i+=2;
-
-        var groupName;
-        if (sql[i] == ':') {
-          groupName = getName('Parse failed, expected group name after :');
-          i+=2;
-        }
-
-        var group = build(sql, i);
-
-        if (groupName) {
-          group.name = groupName;
-        }
-
-        query.query.push(group);
-        i += group.length;
+        getGroup();
       }
       else {
         name = getName('Parse failed, expected parameter name or ( after ?');

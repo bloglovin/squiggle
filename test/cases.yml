@@ -61,6 +61,29 @@
       sql: >
         SELECT foo FROM bar
         LIMIT 0, 5
+- name: RT - Group name doesn't leak to unnamed groups
+  query: >
+    SELECT authors.collection_id AS id FROM collection_authors AS authors
+    WHERE authors.user_id = ?user ?(:onlyPublic AND authors.public=1)
+    ?(AND authors.collection_id < ?before)
+    ORDER BY authors.collection_id DESC
+    LIMIT 0, $chunkSize
+  tests:
+    - parameters:
+        user: 5
+        before: 6
+      values:
+        chunkSize: 5
+      groups:
+        onlyPublic: false
+      sql: >
+        SELECT authors.collection_id AS id FROM collection_authors AS authors
+        WHERE authors.user_id = ?  AND authors.collection_id < ?
+        ORDER BY authors.collection_id DESC
+        LIMIT 0, 5
+      args:
+        - 5
+        - 6
 - name: Nested parentheses
   query: >
     SELECT fields FROM collection_stories AS stories
