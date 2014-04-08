@@ -39,7 +39,7 @@ Query.prototype.build = function build(sql, start) {
       name += sql[i];
     }
     if (!name.length) {
-      throw new Error(error);
+      throw new Error(error + ' Got: ' + JSON.stringify(sql.substring(i+1)));
     }
     return name;
   }
@@ -72,7 +72,7 @@ Query.prototype.build = function build(sql, start) {
         getGroup();
       }
       else {
-        name = getName('Parse failed, expected parameter name or ( after ?');
+        name = getName('Parse failed, expected parameter name or ( after ?.');
         query.query.push({param:name});
         query.params.push(name);
       }
@@ -80,7 +80,7 @@ Query.prototype.build = function build(sql, start) {
     else if (sql[i] == '$')  {
       flush();
 
-      name = getName('Parse failed, expected value name after $');
+      name = getName('Parse failed, expected value name after $.');
       query.query.push({value:name});
       query.values.push(name);
     }
