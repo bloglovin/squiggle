@@ -1,6 +1,6 @@
 {
   "name": "squiggle",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Query builder for use with mysql & mysql2",
   "main": "index.js",
   "scripts": {
