@@ -34,7 +34,7 @@ Query.prototype.build = function build(sql, start) {
   function getName(error) {
     var name = '';
 
-    while (i+1 < sql.length && sql[i+1].match(/[a-z]/)) {
+    while (i+1 < sql.length && sql[i+1].match(/[a-z_]/i)) {
       i++;
       name += sql[i];
     }
