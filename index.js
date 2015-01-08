@@ -10,8 +10,9 @@ function Query(name, sql) {
   this.queryObject = this.build(sql);
 }
 
-Query.prototype.build = function build(sql, start) {
+Query.prototype.build = function build(sql, start, group) {
   start = start || 0;
+
   var query = {
     query: [],
     params: [],
@@ -52,7 +53,7 @@ Query.prototype.build = function build(sql, start) {
       i+=2;
     }
 
-    var group = build(sql, i);
+    var group = build(sql, i, true);
 
     if (groupName) {
       group.name = groupName;
@@ -99,6 +100,10 @@ Query.prototype.build = function build(sql, start) {
     }
   }
   flush();
+
+  if (group && parens >= 0) {
+    throw new Error('Parse failed, unterminated group, expected ")" got end of string');
+  }
 
   query.length = i-start;
   return query;
