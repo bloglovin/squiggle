@@ -48,7 +48,7 @@ Query.prototype.build = function build(sql, start, group) {
   function getGroup() {
     var groupName;
 
-    if (sql[i] == ':') {
+    if (sql[i] === ':') {
       groupName = getName('Parse failed, expected group name after :.');
       i+=2;
     }
@@ -65,10 +65,10 @@ Query.prototype.build = function build(sql, start, group) {
 
   var name;
   for (i=start; i < sql.length; i++) {
-    if (sql[i] == '?') {
+    if (sql[i] === '?') {
       flush();
 
-      if (sql[i+1] == '(') {
+      if (sql[i+1] === '(') {
         i+=2;
         getGroup();
       }
@@ -78,7 +78,7 @@ Query.prototype.build = function build(sql, start, group) {
         query.params.push(name);
       }
     }
-    else if (sql[i] == '$')  {
+    else if (sql[i] === '$')  {
       flush();
 
       name = getName('Parse failed, expected value name after $.');
@@ -86,10 +86,10 @@ Query.prototype.build = function build(sql, start, group) {
       query.values.push(name);
     }
     else {
-      if (sql[i] == '(') {
+      if (sql[i] === '(') {
         parens++;
       }
-      else if (sql[i] == ')') {
+      else if (sql[i] === ')') {
         parens--;
         // If we hit the end-group paranthesis.
         if (parens < 0) {
@@ -167,13 +167,13 @@ Query.prototype._query = function (definition, params, values, groups, child) {
   }
 
   var q = {
-    sql: "",
+    sql: '',
     params: []
   };
   for (var i = 0; i < definition.query.length; i++) {
     var item = definition.query[i];
 
-    if (typeof item == 'string') {
+    if (typeof item === 'string') {
       q.sql += item;
     }
     else if (item.param) {

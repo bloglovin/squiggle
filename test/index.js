@@ -1,5 +1,5 @@
 /* jshint node: true */
-/*global suite, test, before */
+/*global suite, test */
 'use strict';
 
 var lib = {
@@ -33,7 +33,9 @@ tests.forEach(function createSuite(testSuite) {
         if (data.error) {
           assert.throws(function errorCheck() {
             squig.query(spec);
-          }, test.error);
+          }, function(err) {
+            return err.message === data.error;
+          });
         }
         else if (data.sql) {
           var result = squig.query(spec);
@@ -76,19 +78,25 @@ suite('Parsing errors', function checkParseErrors() {
 
   test('Unnamed parameter', function runTest() {
     assert.throws(function errorCheck() {
-      new lib.squiggle.Query('test', 'SELECT foo FROM sometable WHERE field = ?');
-    }, 'Parse failed, expected parameter name or ( after ?');
+      return new lib.squiggle.Query('test', 'SELECT foo FROM sometable WHERE field = ?');
+    }, /expected parameter name/);
   });
 
   test('Unnamed value', function runTest() {
     assert.throws(function errorCheck() {
-      new lib.squiggle.Query('test', 'SELECT foo FROM sometable LIMIT $, 10');
-    }, 'Parse failed, expected value name after $');
+      return new lib.squiggle.Query('test', 'SELECT foo FROM sometable LIMIT $, 10');
+    }, /expected value name/);
   });
 
   test('Unnamed group', function runTest() {
     assert.throws(function errorCheck() {
-      new lib.squiggle.Query('test', 'SELECT foo FROM sometable ?(: WHERE available=1)');
-    }, 'Parse failed, expected group name after :');
+      return new lib.squiggle.Query('test', 'SELECT foo FROM sometable ?(: WHERE available=1)');
+    }, /expected group name/);
+  });
+
+  test('Unterminated group', function runTest() {
+    assert.throws(function errorCheck() {
+      return new lib.squiggle.Query('test', 'SELECT foo FROM sometable ?( WHERE available=1');
+    }, /unterminated group/);
   });
 });
